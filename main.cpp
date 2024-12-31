@@ -25,14 +25,14 @@ int main(int argc, char *argv[]) {
     // Command-line arguments
     QStringList args = app.arguments();
 
-    if (args.size() < 2) {
-        qCritical() << "Usage: filesearch <pattern> <directory>";
+    if (args.size() < 1) {
+        qCritical() << "Usage: filesearch <pattern>";
         return 1;
     }
 
     // Get arguments
     QString patternStr = args[1];                     // Regular expression pattern
-    QString directory = args[2];                      // Directory to search
+    QString directory = ".";                      // Directory to search
 
     // Compile regex pattern
 	QRegularExpression pattern(patternStr, QRegularExpression::CaseInsensitiveOption);
