@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 
     // Command-line arguments
     QStringList args = app.arguments();
-	qDebug() << "args " << args;
 
     if (args.size() < 3) {
         qCritical() << "Usage: grepfiles <pattern> <directory> [-r]";
@@ -39,7 +38,7 @@ int main(int argc, char *argv[]) {
     bool recursive = args.contains("-r");             // Recursive flag
 
     // Compile regex pattern
-    QRegularExpression pattern(patternStr);
+	QRegularExpression pattern(patternStr, QRegularExpression::CaseInsensitiveOption);
     if (!pattern.isValid()) {
         qCritical() << "Invalid regular expression:" << patternStr;
         return 1;
