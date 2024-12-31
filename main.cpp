@@ -3,12 +3,10 @@
 #include <QRegularExpression>
 #include <QDebug>
 
-void searchFileNames(const QString &path, const QRegularExpression &pattern, bool recursive) {
-    // Use recursive or non-recursive search
-    QDirIterator::IteratorFlags flags = recursive ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags;
+void searchFileNames(const QString &path, const QRegularExpression &pattern) {
 
     // Create directory iterator
-    QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, flags);
+    QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
     // Iterate through files
     while (it.hasNext()) {
@@ -27,15 +25,14 @@ int main(int argc, char *argv[]) {
     // Command-line arguments
     QStringList args = app.arguments();
 
-    if (args.size() < 3) {
-        qCritical() << "Usage: grepfiles <pattern> <directory> [-r]";
+    if (args.size() < 2) {
+        qCritical() << "Usage: filesearch <pattern> <directory>";
         return 1;
     }
 
     // Get arguments
     QString patternStr = args[1];                     // Regular expression pattern
     QString directory = args[2];                      // Directory to search
-    bool recursive = args.contains("-r");             // Recursive flag
 
     // Compile regex pattern
 	QRegularExpression pattern(patternStr, QRegularExpression::CaseInsensitiveOption);
@@ -45,7 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Perform search
-    searchFileNames(directory, pattern, recursive);
+    searchFileNames(directory, pattern);
 
     return 0;
 }
