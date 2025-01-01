@@ -7,6 +7,7 @@ void searchFileNames(const QString &path, const QRegularExpression &pattern) {
 
     // Create directory iterator
     QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	QStringList list;
 	uint number = 1;
 
     // Iterate through files
@@ -16,6 +17,7 @@ void searchFileNames(const QString &path, const QRegularExpression &pattern) {
 
         if (pattern.match(fileName).hasMatch()) {     // Match file name against regex
             qWarning() << number << filePath;                     // Print matching file path
+            list.append(filePath);
 			number++;
         }
     }
