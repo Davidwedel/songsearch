@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     QStringList args = app.arguments();
 
     if (args.size() < 1) {
-        qCritical() << "Usage: filesearch <pattern>";
+        qCritical() << "Usage: fs <pattern>";
         return 1;
     }
 

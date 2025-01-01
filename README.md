@@ -1,4 +1,4 @@
-A basic file search program, as I was tired of always trying to find the correct syntax. The correct syntax is 
+a copy of my "filesearch" program, customized for my own use cases
 ```
-filesearch <name>
+fs <name>
 ```
