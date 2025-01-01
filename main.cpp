@@ -2,12 +2,14 @@
 #include <QDirIterator>
 #include <QRegularExpression>
 #include <QDebug>
+#include <QProcess>
+#include <iostream>
 
-void searchFileNames(const QString &path, const QRegularExpression &pattern) {
+
+void searchFileNames(const QString &path, const QRegularExpression &pattern, QStringList &fileList) {
 
     // Create directory iterator
     QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-	QStringList list;
 	uint number = 1;
 
     // Iterate through files
@@ -17,7 +19,7 @@ void searchFileNames(const QString &path, const QRegularExpression &pattern) {
 
         if (pattern.match(fileName).hasMatch()) {     // Match file name against regex
             qWarning() << number << filePath;                     // Print matching file path
-            list.append(filePath);
+            fileList.append(filePath);
 			number++;
         }
     }
@@ -46,7 +48,28 @@ int main(int argc, char *argv[]) {
     }
 
     // Perform search
-    searchFileNames(directory, pattern);
+    QStringList fileList;
+    searchFileNames(directory, pattern, fileList); // Check if any files were found
+
+        if (fileList.isEmpty()) {
+        qWarning() << "No matching files found.";
+        return 0;
+    }
+
+    // Prompt user for input
+    qInfo() << "Enter a number (1 -" << fileList.size() << ") to open a file, or 0 to exit:";
+
+    int choice = 0;
+    std::cin >> choice;
+
+    if (choice > 0 && choice <= fileList.size()) {
+        // Open the selected file
+        QString fileToOpen = fileList[choice - 1];
+        qInfo() << "Opening file:" << fileToOpen;
+        QProcess::startDetached("libreoffice", QStringList() << fileToOpen);
+    } else if (choice != 0) {
+        qWarning() << "Invalid selection.";
+    }
 
     return 0;
 }
