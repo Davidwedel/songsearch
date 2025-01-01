@@ -66,8 +66,19 @@ int main(int argc, char *argv[]) {
         // Open the selected file
         QString fileToOpen = fileList[choice - 1];
         qInfo() << "Opening file:" << fileToOpen;
-        QProcess::startDetached("libreoffice", QStringList() << fileToOpen);
-    } else if (choice != 0) {
+
+        // Extract the file extension
+        QString extension = fileToOpen.section('.', -1).toLower(); // Get text after the last '.'
+        qDebug() << extension;
+
+        // Check if the extension is 'pptx'
+        if (extension == "pptx") {
+            // Open with LibreOffice
+            QProcess::startDetached("libreoffice", QStringList() << fileToOpen);
+        } else {
+            // Open with the default application
+            QProcess::startDetached("xdg-open", QStringList() << fileToOpen);
+        }    } else if (choice != 0) {
         qWarning() << "Invalid selection.";
     }
 
