@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         // Check if the extension is 'pptx'
         if (extension == "pptx") {
             // Open with LibreOffice
-            QProcess::startDetached("libreoffice", QStringList() << fileToOpen);
+            QProcess::startDetached("libreoffice", QStringList() << "--show" << fileToOpen);
         } else {
             // Open with the default application
             QProcess::startDetached("xdg-open", QStringList() << fileToOpen);
