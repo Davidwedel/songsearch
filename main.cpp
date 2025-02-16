@@ -5,22 +5,19 @@
 #include <QProcess>
 #include <iostream>
 
-
 void searchFileNames(const QString &path, const QRegularExpression &pattern, QStringList &fileList) {
-
-    // Create directory iterator
     QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-	uint number = 1;
+    uint number = 1;
+    fileList.clear();
 
-    // Iterate through files
     while (it.hasNext()) {
-        QString filePath = it.next();                 // Full file path
-        QString fileName = it.fileName();             // Only file name
+        QString filePath = it.next();
+        QString fileName = it.fileName();
 
-        if (pattern.match(fileName).hasMatch()) {     // Match file name against regex
-            qWarning() << number << filePath;                     // Print matching file path
+        if (pattern.match(fileName).hasMatch()) {
+            qWarning() << number << filePath;
             fileList.append(filePath);
-			number++;
+            number++;
         }
     }
 }
@@ -28,58 +25,59 @@ void searchFileNames(const QString &path, const QRegularExpression &pattern, QSt
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
-    // Command-line arguments
-    QStringList args = app.arguments();
+    QString directory = ".";
 
-    if (args.size() < 1) {
-        qCritical() << "Usage: fs <pattern>";
-        return 1;
-    }
+    while (true) {
+        // Get user input for search pattern
+        qInfo() << "\nEnter a search pattern (or type 'exit' to quit):";
+        std::string patternStr;
+        std::getline(std::cin, patternStr);
 
-    // Get arguments
-    QString patternStr = args[1];                     // Regular expression pattern
-    QString directory = ".";                      // Directory to search
+        if (patternStr == "exit") {
+            qInfo() << "Exiting...";
+            break;
+        }
 
-    // Compile regex pattern
-	QRegularExpression pattern(patternStr, QRegularExpression::CaseInsensitiveOption);
-    if (!pattern.isValid()) {
-        qCritical() << "Invalid regular expression:" << patternStr;
-        return 1;
-    }
+        QRegularExpression pattern(QString::fromStdString(patternStr), QRegularExpression::CaseInsensitiveOption);
+        if (!pattern.isValid()) {
+            qCritical() << "Invalid regular expression:" << QString::fromStdString(patternStr);
+            continue;
+        }
 
-    // Perform search
-    QStringList fileList;
-    searchFileNames(directory, pattern, fileList); // Check if any files were found
+        // Perform search
+        QStringList fileList;
+        searchFileNames(directory, pattern, fileList);
 
         if (fileList.isEmpty()) {
-        qWarning() << "No matching files found.";
-        return 0;
-    }
+            qWarning() << "No matching files found.";
+            continue;
+        }
 
-    // Prompt user for input
-    qInfo() << "Enter a number (1 -" << fileList.size() << ") to open a file, or 0 to exit:";
+        while (true) {
+            qInfo() << "Enter a number (1 -" << fileList.size() << ") to open a file, or 0 to search again:";
 
-    int choice = 0;
-    std::cin >> choice;
+            int choice = 0;
+            std::cin >> choice;
 
-    if (choice > 0 && choice <= fileList.size()) {
-        // Open the selected file
-        QString fileToOpen = fileList[choice - 1];
-        qInfo() << "Opening file:" << fileToOpen;
+            if (choice == 0) {
+                break;  // Restart search
+            }
 
-        // Extract the file extension
-        QString extension = fileToOpen.section('.', -1).toLower(); // Get text after the last '.'
-        qDebug() << extension;
+            if (choice > 0 && choice <= fileList.size()) {
+                QString fileToOpen = fileList[choice - 1];
+                qInfo() << "Opening file:" << fileToOpen;
 
-        // Check if the extension is 'pptx'
-        if (extension == "pptx") {
-            // Open with LibreOffice
-            QProcess::startDetached("libreoffice", QStringList() << "--show" << fileToOpen);
-        } else {
-            // Open with the default application
-            QProcess::startDetached("xdg-open", QStringList() << fileToOpen);
-        }    } else if (choice != 0) {
-        qWarning() << "Invalid selection.";
+                QString extension = fileToOpen.section('.', -1).toLower();
+
+                if (extension == "pptx") {
+                    QProcess::startDetached("libreoffice", QStringList() << "--show" << fileToOpen);
+                } else {
+                    QProcess::startDetached("xdg-open", QStringList() << fileToOpen);
+                }
+            } else {
+                qWarning() << "Invalid selection.";
+            }
+        }
     }
 
     return 0;
